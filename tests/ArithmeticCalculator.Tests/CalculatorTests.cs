@@ -80,4 +80,39 @@ public class CalculatorTests
         Assert.Equal(0, result.Modulo);
         Assert.Equal(216, result.Power);
     }
+
+    // ── Overflow / Edge Cases ─────────────────────────────────────────────────
+
+    /// <summary>
+    /// Regression test: 91^1561 overflows double and produces Infinity.
+    /// The API layer (Program.cs Sanitize) converts Infinity to null before JSON serialization.
+    /// This test verifies the Core correctly produces an overflowed (Infinity) value.
+    /// </summary>
+    [Fact]
+    public void Calculate_PowerOverflow_ReturnsInfinity()
+    {
+        var result = _calculator.Calculate(91, 1561);
+        Assert.True(double.IsInfinity(result.Power),
+            "91^1561 should overflow double and return Infinity");
+    }
+
+    [Theory]
+    [InlineData(double.MaxValue, 2)]   // MaxValue^2 overflows
+    [InlineData(1e200, 1e200)]         // extremely large base and exponent
+    public void Calculate_ExtremeValues_PowerIsInfinityOrNaN(double a, double b)
+    {
+        var result = _calculator.Calculate(a, b);
+        Assert.True(
+            double.IsInfinity(result.Power) || double.IsNaN(result.Power),
+            $"Power({a}, {b}) should be Infinity or NaN, got {result.Power}");
+    }
+
+    [Fact]
+    public void Calculate_NegativeBase_FractionalExponent_ReturnsNaN()
+    {
+        // (-8)^0.5 = sqrt(-8) = NaN in real numbers
+        var result = _calculator.Calculate(-8, 0.5);
+        Assert.True(double.IsNaN(result.Power),
+            "(-8)^0.5 should return NaN");
+    }
 }
