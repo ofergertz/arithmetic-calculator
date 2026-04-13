@@ -1,0 +1,12 @@
+version: "3.9"
+
+services:
+  arithmetic-calculator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: arithmetic-calculator:latest
+    container_name: arithmetic-calculator
+    stdin_open: true   # keep stdin open (-i)
+    tty: true          # allocate a pseudo-TTY (-t)
+    restart: "no"
