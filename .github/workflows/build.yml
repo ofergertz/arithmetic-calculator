@@ -1,0 +1,51 @@
+name: Build
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Compile & Verify
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build solution
+        run: |
+          dotnet build \
+            --no-restore \
+            --configuration Release \
+            -warnaserror
+
+      - name: Publish web app (verify publish output)
+        run: |
+          dotnet publish src/ArithmeticCalculator.Web/ArithmeticCalculator.Web.csproj \
+            --no-restore \
+            --configuration Release \
+            --output ./publish-output
+
+      - name: Verify published output
+        run: |
+          echo "## Build Output" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          ls -lh ./publish-output/ >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "✅ Build succeeded" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload publish artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: publish-output
+          path: ./publish-output/
+          retention-days: 7

@@ -1,0 +1,82 @@
+name: Tests
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Run xUnit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Run tests with detailed report
+        run: |
+          dotnet test \
+            --no-restore \
+            --logger "trx;LogFileName=test-results.trx" \
+            --logger "console;verbosity=normal" \
+            --results-directory ./test-results
+
+      - name: Parse and display test report
+        if: always()
+        run: |
+          if [ -f "./test-results/test-results.trx" ]; then
+            echo "## Test Results" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            # Parse TRX XML
+            python3 << 'PYEOF'
+          import xml.etree.ElementTree as ET
+          import os
+
+          tree = ET.parse('./test-results/test-results.trx')
+          root = tree.getroot()
+          ns = {'t': 'http://microsoft.com/schemas/VisualStudio/TeamTest/2010'}
+
+          counters = root.find('.//t:ResultSummary/t:Counters', ns)
+          total   = counters.get('total', '0')
+          passed  = counters.get('passed', '0')
+          failed  = counters.get('failed', '0')
+          skipped = counters.get('notExecuted', '0')
+
+          summary_file = os.environ.get('GITHUB_STEP_SUMMARY', '/dev/stdout')
+          with open(summary_file, 'a') as f:
+              f.write(f"| ✅ Passed | ❌ Failed | ⏭️ Skipped | 📊 Total |\n")
+              f.write(f"|----------|----------|-----------|----------|\n")
+              f.write(f"| {passed} | {failed} | {skipped} | {total} |\n\n")
+
+              if int(failed) > 0:
+                  f.write("### ❌ Failed Tests\n\n")
+                  for result in root.findall('.//t:UnitTestResult', ns):
+                      if result.get('outcome') == 'Failed':
+                          name = result.get('testName', 'Unknown')
+                          output = result.find('.//t:ErrorInfo/t:Message', ns)
+                          msg = output.text.strip() if output is not None else 'No message'
+                          f.write(f"**`{name}`**\n```\n{msg}\n```\n\n")
+              else:
+                  f.write("### ✅ All tests passed!\n\n")
+                  for result in root.findall('.//t:UnitTestResult', ns):
+                      name = result.get('testName', '')
+                      f.write(f"- ✅ `{name}`\n")
+          PYEOF
+          fi
+
+      - name: Upload test results artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: ./test-results/test-results.trx
+          retention-days: 14

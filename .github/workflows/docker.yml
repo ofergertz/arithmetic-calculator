@@ -1,0 +1,68 @@
+name: Docker Build
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  docker:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Extract PR metadata (image tag)
+        id: meta
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          IMAGE_TAG="pr-${PR_NUMBER}-${SHORT_SHA}"
+          echo "tag=${IMAGE_TAG}" >> $GITHUB_OUTPUT
+          echo "Image will be tagged: arithmetic-calculator:${IMAGE_TAG}"
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          tags: |
+            arithmetic-calculator:${{ steps.meta.outputs.tag }}
+            arithmetic-calculator:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          outputs: type=docker,dest=/tmp/arithmetic-calculator.tar
+
+      - name: Verify image
+        run: |
+          docker load --input /tmp/arithmetic-calculator.tar
+          docker images arithmetic-calculator
+
+          echo "## Docker Image" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Image | \`arithmetic-calculator:${{ steps.meta.outputs.tag }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| SHA | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
+
+          SIZE=$(docker inspect arithmetic-calculator:latest --format='{{.Size}}' | awk '{printf "%.1f MB", $1/1024/1024}')
+          echo "| Size | ${SIZE} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Image built successfully" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### How to use this image locally" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "docker load --input arithmetic-calculator.tar" >> $GITHUB_STEP_SUMMARY
+          echo "docker run -p 8080:8080 arithmetic-calculator:${{ steps.meta.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image-${{ steps.meta.outputs.tag }}
+          path: /tmp/arithmetic-calculator.tar
+          retention-days: 7
