@@ -85,17 +85,14 @@ public class CalculatorTests
 
     /// <summary>
     /// Regression test: 91^1561 overflows double and produces Infinity.
-    /// The Core layer should return Infinity (raw math result).
-    /// The API layer (Program.cs Sanitize) is responsible for converting to null.
-    /// This test verifies the Core correctly computes an overflowed value
-    /// and that callers can detect it via double.IsInfinity().
+    /// The API layer (Program.cs Sanitize) converts Infinity to null before JSON serialization.
+    /// This test verifies the Core correctly produces an overflowed (Infinity) value.
     /// </summary>
     [Fact]
     public void Calculate_PowerOverflow_ReturnsInfinity()
     {
         var result = _calculator.Calculate(91, 1561);
-        Assert.True(result.Power.HasValue);
-        Assert.True(double.IsInfinity(result.Power!.Value),
+        Assert.True(double.IsInfinity(result.Power),
             "91^1561 should overflow double and return Infinity");
     }
 
@@ -105,9 +102,8 @@ public class CalculatorTests
     public void Calculate_ExtremeValues_PowerIsInfinityOrNaN(double a, double b)
     {
         var result = _calculator.Calculate(a, b);
-        Assert.True(result.Power.HasValue);
         Assert.True(
-            double.IsInfinity(result.Power!.Value) || double.IsNaN(result.Power.Value),
+            double.IsInfinity(result.Power) || double.IsNaN(result.Power),
             $"Power({a}, {b}) should be Infinity or NaN, got {result.Power}");
     }
 
@@ -116,8 +112,7 @@ public class CalculatorTests
     {
         // (-8)^0.5 = sqrt(-8) = NaN in real numbers
         var result = _calculator.Calculate(-8, 0.5);
-        Assert.True(result.Power.HasValue);
-        Assert.True(double.IsNaN(result.Power!.Value),
+        Assert.True(double.IsNaN(result.Power),
             "(-8)^0.5 should return NaN");
     }
 }
