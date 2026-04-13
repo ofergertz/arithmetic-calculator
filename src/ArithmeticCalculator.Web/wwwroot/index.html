@@ -8,31 +8,59 @@
   <style>
     body {
       min-height: 100vh;
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      background: linear-gradient(135deg, #f0f4ff 0%, #e8f5e9 50%, #fff8e1 100%);
       display: flex;
       align-items: center;
       justify-content: center;
       font-family: 'Segoe UI', sans-serif;
+      padding: 2rem 1rem;
+    }
+
+    .page-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2.5rem;
+      width: 100%;
+      max-width: 1000px;
+    }
+
+    .side-img {
+      flex: 0 0 160px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.2rem;
+    }
+
+    .side-img img {
+      width: 150px;
+      height: 150px;
+      object-fit: contain;
+      border-radius: 16px;
+      background: white;
+      padding: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
     }
 
     .card {
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 20px;
-      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+      background: #ffffff;
+      border: none;
+      border-radius: 24px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.10);
       width: 100%;
-      max-width: 480px;
+      max-width: 460px;
       padding: 2.5rem;
-      color: #fff;
+      color: #1a1a2e;
+      flex: 0 0 auto;
     }
 
     .card-title {
       font-size: 1.8rem;
-      font-weight: 700;
+      font-weight: 800;
       text-align: center;
       margin-bottom: 0.25rem;
-      background: linear-gradient(90deg, #e94560, #0f3460);
+      background: linear-gradient(90deg, #5b4fcf, #2196f3);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -40,72 +68,71 @@
 
     .subtitle {
       text-align: center;
-      color: rgba(255,255,255,0.45);
+      color: #8a94a6;
       font-size: 0.85rem;
       margin-bottom: 2rem;
     }
 
     label {
-      color: rgba(255,255,255,0.75);
-      font-size: 0.85rem;
-      font-weight: 600;
+      color: #4a5568;
+      font-size: 0.82rem;
+      font-weight: 700;
       letter-spacing: 0.05em;
       text-transform: uppercase;
       margin-bottom: 0.4rem;
     }
 
     .form-control {
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 10px;
-      color: #fff;
+      background: #f7f9fc;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 12px;
+      color: #1a202c;
       font-size: 1.1rem;
       padding: 0.65rem 1rem;
       transition: border-color 0.2s, box-shadow 0.2s;
     }
 
     .form-control:focus {
-      background: rgba(255,255,255,0.12);
-      border-color: #e94560;
-      box-shadow: 0 0 0 3px rgba(233,69,96,0.25);
-      color: #fff;
+      background: #fff;
+      border-color: #5b4fcf;
+      box-shadow: 0 0 0 3px rgba(91,79,207,0.15);
+      color: #1a202c;
       outline: none;
     }
 
-    .form-control::placeholder { color: rgba(255,255,255,0.3); }
+    .form-control::placeholder { color: #b0bac9; }
 
     .btn-calc {
       width: 100%;
-      padding: 0.75rem;
+      padding: 0.8rem;
       border: none;
-      border-radius: 12px;
+      border-radius: 14px;
       font-size: 1rem;
       font-weight: 700;
-      letter-spacing: 0.05em;
-      background: linear-gradient(135deg, #e94560, #c62a47);
+      letter-spacing: 0.04em;
+      background: linear-gradient(135deg, #5b4fcf, #2196f3);
       color: #fff;
       cursor: pointer;
       transition: transform 0.15s, box-shadow 0.15s;
-      box-shadow: 0 4px 15px rgba(233,69,96,0.4);
+      box-shadow: 0 4px 15px rgba(91,79,207,0.30);
       margin-top: 1.5rem;
     }
 
-    .btn-calc:hover  { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(233,69,96,0.55); }
+    .btn-calc:hover  { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(91,79,207,0.40); }
     .btn-calc:active { transform: translateY(0); }
     .btn-calc:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
-    /* Results */
     #results {
       margin-top: 2rem;
       display: none;
     }
 
     .results-title {
-      font-size: 0.78rem;
+      font-size: 0.75rem;
       font-weight: 700;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: rgba(255,255,255,0.4);
+      color: #a0aec0;
       margin-bottom: 1rem;
       text-align: center;
     }
@@ -115,69 +142,68 @@
       justify-content: space-between;
       align-items: center;
       padding: 0.65rem 1rem;
-      border-radius: 10px;
+      border-radius: 12px;
       margin-bottom: 0.5rem;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.08);
+      background: #f7f9fc;
+      border: 1.5px solid #e8edf5;
       transition: background 0.2s;
     }
 
-    .result-row:hover { background: rgba(255,255,255,0.1); }
+    .result-row:hover { background: #eef2fb; }
 
     .op-label {
       display: flex;
       align-items: center;
       gap: 0.6rem;
       font-size: 0.9rem;
-      color: rgba(255,255,255,0.7);
+      color: #4a5568;
     }
 
     .op-icon {
-      width: 28px;
-      height: 28px;
+      width: 30px;
+      height: 30px;
       border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.85rem;
-      font-weight: 700;
+      font-size: 0.9rem;
+      font-weight: 800;
     }
 
-    .icon-add      { background: rgba(52,211,153,0.2);  color: #34d399; }
-    .icon-sub      { background: rgba(251,191,36,0.2);  color: #fbbf24; }
-    .icon-mul      { background: rgba(139,92,246,0.2);  color: #8b5cf6; }
-    .icon-div      { background: rgba(59,130,246,0.2);  color: #3b82f6; }
-    .icon-mod      { background: rgba(249,115,22,0.2);  color: #f97316; }
-    .icon-pow      { background: rgba(236,72,153,0.2);  color: #ec4899; }
+    .icon-add { background: #d1fae5; color: #059669; }
+    .icon-sub { background: #fef3c7; color: #d97706; }
+    .icon-mul { background: #ede9fe; color: #7c3aed; }
+    .icon-div { background: #dbeafe; color: #2563eb; }
+    .icon-mod { background: #ffedd5; color: #ea580c; }
+    .icon-pow { background: #fce7f3; color: #db2777; }
 
     .op-value {
       font-size: 1rem;
       font-weight: 700;
-      color: #fff;
+      color: #1a202c;
     }
 
     .undefined-val {
       font-size: 0.8rem;
-      color: rgba(255,255,255,0.35);
+      color: #a0aec0;
       font-style: italic;
     }
 
     .error-box {
-      background: rgba(233,69,96,0.15);
-      border: 1px solid rgba(233,69,96,0.4);
-      border-radius: 10px;
+      background: #fff5f5;
+      border: 1.5px solid #fed7d7;
+      border-radius: 12px;
       padding: 0.75rem 1rem;
-      color: #e94560;
+      color: #c53030;
       font-size: 0.9rem;
       text-align: center;
       margin-top: 1rem;
     }
 
-    /* Spinner */
     .spinner {
       display: inline-block;
       width: 16px; height: 16px;
-      border: 2px solid rgba(255,255,255,0.3);
+      border: 2px solid rgba(255,255,255,0.4);
       border-top-color: #fff;
       border-radius: 50%;
       animation: spin 0.7s linear infinite;
@@ -185,58 +211,78 @@
       margin-right: 6px;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 768px) {
+      .side-img { display: none; }
+    }
   </style>
 </head>
 <body>
-  <div class="card">
-    <div class="card-title">🧮 Arithmetic Calculator</div>
-    <div class="subtitle">Add · Subtract · Multiply · Divide · Modulo · Power</div>
+  <div class="page-wrapper">
 
-    <div class="mb-3">
-      <label for="numA">Number A</label>
-      <input id="numA" type="number" class="form-control" placeholder="e.g. 10" step="any" />
+    <!-- Left math image -->
+    <div class="side-img">
+      <img src="https://cdn-icons-png.flaticon.com/512/2103/2103633.png" alt="Math formulas" />
+      <img src="https://cdn-icons-png.flaticon.com/512/1187/1187518.png" alt="Calculator" />
     </div>
 
-    <div class="mb-3">
-      <label for="numB">Number B</label>
-      <input id="numB" type="number" class="form-control" placeholder="e.g. 3" step="any" />
+    <!-- Main card -->
+    <div class="card">
+      <div class="card-title">🧮 Arithmetic Calculator</div>
+      <div class="subtitle">Add · Subtract · Multiply · Divide · Modulo · Power</div>
+
+      <div class="mb-3">
+        <label for="numA">Number A</label>
+        <input id="numA" type="number" class="form-control" placeholder="e.g. 10" step="any" />
+      </div>
+
+      <div class="mb-3">
+        <label for="numB">Number B</label>
+        <input id="numB" type="number" class="form-control" placeholder="e.g. 3" step="any" />
+      </div>
+
+      <button class="btn-calc" id="calcBtn" onclick="calculate()">Calculate</button>
+
+      <div id="error" style="display:none"></div>
+
+      <div id="results">
+        <div class="results-title">Results</div>
+        <div class="result-row">
+          <span class="op-label"><span class="op-icon icon-add">+</span>Addition</span>
+          <span class="op-value" id="r-add"></span>
+        </div>
+        <div class="result-row">
+          <span class="op-label"><span class="op-icon icon-sub">−</span>Subtraction</span>
+          <span class="op-value" id="r-sub"></span>
+        </div>
+        <div class="result-row">
+          <span class="op-label"><span class="op-icon icon-mul">×</span>Multiplication</span>
+          <span class="op-value" id="r-mul"></span>
+        </div>
+        <div class="result-row">
+          <span class="op-label"><span class="op-icon icon-div">÷</span>Division</span>
+          <span class="op-value" id="r-div"></span>
+        </div>
+        <div class="result-row">
+          <span class="op-label"><span class="op-icon icon-mod">%</span>Modulo</span>
+          <span class="op-value" id="r-mod"></span>
+        </div>
+        <div class="result-row">
+          <span class="op-label"><span class="op-icon icon-pow">^</span>Power</span>
+          <span class="op-value" id="r-pow"></span>
+        </div>
+      </div>
     </div>
 
-    <button class="btn-calc" id="calcBtn" onclick="calculate()">Calculate</button>
-
-    <div id="error" style="display:none"></div>
-
-    <div id="results">
-      <div class="results-title">Results</div>
-      <div class="result-row">
-        <span class="op-label"><span class="op-icon icon-add">+</span>Addition</span>
-        <span class="op-value" id="r-add"></span>
-      </div>
-      <div class="result-row">
-        <span class="op-label"><span class="op-icon icon-sub">−</span>Subtraction</span>
-        <span class="op-value" id="r-sub"></span>
-      </div>
-      <div class="result-row">
-        <span class="op-label"><span class="op-icon icon-mul">×</span>Multiplication</span>
-        <span class="op-value" id="r-mul"></span>
-      </div>
-      <div class="result-row">
-        <span class="op-label"><span class="op-icon icon-div">÷</span>Division</span>
-        <span class="op-value" id="r-div"></span>
-      </div>
-      <div class="result-row">
-        <span class="op-label"><span class="op-icon icon-mod">%</span>Modulo</span>
-        <span class="op-value" id="r-mod"></span>
-      </div>
-      <div class="result-row">
-        <span class="op-label"><span class="op-icon icon-pow">^</span>Power</span>
-        <span class="op-value" id="r-pow"></span>
-      </div>
+    <!-- Right math image -->
+    <div class="side-img">
+      <img src="https://cdn-icons-png.flaticon.com/512/3281/3281289.png" alt="Math symbols" />
+      <img src="https://cdn-icons-png.flaticon.com/512/2436/2436874.png" alt="Numbers" />
     </div>
+
   </div>
 
   <script>
-    // Allow Enter key to trigger calculate
     document.addEventListener('keydown', e => {
       if (e.key === 'Enter') calculate();
     });
@@ -244,7 +290,6 @@
     function fmt(val) {
       if (val === null || val === undefined)
         return '<span class="undefined-val">undefined (÷ 0)</span>';
-      // Format nicely: up to 10 significant digits, strip trailing zeros
       return parseFloat(val.toPrecision(10)).toString();
     }
 
@@ -281,14 +326,12 @@
         }
 
         const d = await res.json();
-
         document.getElementById('r-add').innerHTML = fmt(d.add);
         document.getElementById('r-sub').innerHTML = fmt(d.subtract);
         document.getElementById('r-mul').innerHTML = fmt(d.multiply);
         document.getElementById('r-div').innerHTML = fmt(d.divide);
         document.getElementById('r-mod').innerHTML = fmt(d.modulo);
         document.getElementById('r-pow').innerHTML = fmt(d.power);
-
         results.style.display = 'block';
       } catch (e) {
         errBox.innerHTML = `<div class="error-box">❌ ${e.message}</div>`;
