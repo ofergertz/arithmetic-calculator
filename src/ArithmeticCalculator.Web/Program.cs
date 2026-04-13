@@ -22,14 +22,20 @@ app.MapPost("/api/calculate", (CalculateRequest req, Calculator calc) =>
 
     var result = calc.Calculate(a, b);
 
+    // Sanitize: JSON cannot represent Infinity or NaN — return null for those
+    static double? Sanitize(double? val) =>
+        val.HasValue && (double.IsInfinity(val.Value) || double.IsNaN(val.Value))
+            ? null
+            : val;
+
     return Results.Ok(new
     {
-        add      = result.Add,
-        subtract = result.Subtract,
-        multiply = result.Multiply,
-        divide   = result.Divide,
-        modulo   = result.Modulo,
-        power    = result.Power
+        add      = Sanitize(result.Add),
+        subtract = Sanitize(result.Subtract),
+        multiply = Sanitize(result.Multiply),
+        divide   = Sanitize(result.Divide),
+        modulo   = Sanitize(result.Modulo),
+        power    = Sanitize(result.Power)
     });
 });
 
